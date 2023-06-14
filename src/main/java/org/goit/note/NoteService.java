@@ -1,47 +1,50 @@
 package org.goit.note;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+@RequiredArgsConstructor
 @Service
 public class NoteService {
-    private final Map<Long, Note> notes = new HashMap<>();
+    private final NoteRepository noteRepository;
 
     public List<Note> listAll() {
-        return new ArrayList<>(notes.values());
+        return noteRepository.findAll();
     }
 
     public Note add(Note note) {
-        if (notes.isEmpty()) {
-            note.setId(1L);
-        } else {
-            note.setId(Collections.max(notes.keySet()) + 1);
-        }
-        return notes.put(note.getId(), note);
+        noteRepository.save(note);
+        return note;
     }
 
     public void deleteById(long id) {
-        if (notes.containsKey(id)) {
-            notes.remove(id);
-        } else {
-            throw new RuntimeException("The note is missing.");
-        }
+        noteRepository.findById(id)
+                .stream()
+                .findAny()
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("The note is missing.");
+                });
+        noteRepository.deleteById(id);
     }
 
     public void update(Note note) {
-        if (notes.containsKey(note.getId())) {
-            notes.put(note.getId(), note);
-        } else {
-            throw new RuntimeException("The note is missing.");
-        }
+        noteRepository.findById(note.getId())
+                .stream()
+                .findAny()
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("The note is missing.");
+                });
+        noteRepository.save(note);
     }
 
     public Note getById(long id) {
-        if (notes.containsKey(id)) {
-            return notes.get(id);
-        } else {
-            throw new RuntimeException("The note is missing.");
-        }
+        return noteRepository.findById(id)
+                .stream()
+                .findAny()
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("The note is missing.");
+                });
     }
 }
