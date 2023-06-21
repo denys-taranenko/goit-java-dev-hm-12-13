@@ -44,7 +44,8 @@ public class NoteController {
     }
 
     @GetMapping("/edit")
-    public String editNote(Model model, @RequestParam long id) {
+    public String editNote(Model model,
+                           @RequestParam long id) {
         Note note = noteService.getById(id);
         model.addAttribute("note", note);
         return ("note/edit-note");
